@@ -70,9 +70,10 @@ def main():
                     jHref = jTopicAtt['href']
                     getTextEveryTopic(jHref)
             '''
+    postFile.close()
 
 def getTextEveryTopic(jTopicName, jHref):
-    topicUrl = 'http://tieba.baidu.com' + jHref
+    topicUrl = 'http://tieba.baidu.com' + '/p/3554017152'
     print jTopicName + '\t' + topicUrl
     try:
         topicResp = requests.get(topicUrl)
@@ -83,20 +84,35 @@ def getTextEveryTopic(jTopicName, jHref):
         # print author
 
         topicPageNum = int(topicSoup.find_all('li', 'l_reply_num')[0].find_all('span', 'red')[1].text)
-        for kPage in range(1, topicPageNum + 1):
-            items = topicSoup.find_all('div', 'l_post')
-            for item in items:
-                dataField = item['data-field']
-                jsonData = json.loads(dataField, encoding='utf-8')
-                authorName = jsonData['author']['user_name']
-                authorID = jsonData['author']['user_id']
-                postNo = int(jsonData['content']['post_no'])
-                type = 1 if postNo == 1 else 2
-                postContent = item.find_all('div', 'p_content')[0].text.strip()
-                postTime = item.find_all('span', 'j_reply_data')[0].text
-                print postContent + '\t' + postTime
 
-                store(jHref, jTopicName, authorID, authorName, postNo, type, postContent, postTime)
+        # 页码从后往前迭代，因为最新的帖子总是在最后面
+        for kPage in range(topicPageNum, 0, -1):
+            items = topicSoup.find_all('div', 'l_post')
+
+            # 从后往前迭代，因为最新的帖子总是在最后面
+            for m in range(len(items) - 1, -1, -1):
+                postTime = items[m].find_all('span', 'j_reply_data')[0].text
+
+                curTimeStamp = time.time()
+                # timeStamp = time.mktime(time.strptime(postTime, '%y-%m-%d %H:%M'))
+                # print timeStamp
+
+                # 抓取最近两个小时的帖子
+                if curTimeStamp - postTime > internal * 60 * 60 * 1000:
+
+                    dataField = items[m]['data-field']
+                    jsonData = json.loads(dataField, encoding='utf-8')
+                    authorName = jsonData['author']['user_name']
+                    authorID = jsonData['author']['user_id']
+                    postNo = int(jsonData['content']['post_no'])
+                    postType = 1 if postNo == 1 else 2
+                    postContent = items[m].find_all('div', 'p_content')[0].text.strip()
+
+                    print postContent + str(postType) + '\t' + postTime
+
+                    store(jHref, jTopicName, authorID, authorName, postNo, postType, postContent, postTime)
+                else:
+                    return "crawl finish"
                 # postContentMain = item.find_all('div', 'd_post_content_main')[0]
                 # print postContentMain + '------'
 
@@ -115,8 +131,12 @@ def getTextEveryTopic(jTopicName, jHref):
 
 
 # 存入数据库
-def store(jHref, jTopicName, authorID, authorName, postNo, type, postContent, postTime):
-    pass
+def store(jHref, jTopicName, authorID, authorName, postNo, postType, postContent, postTime):
+    postFile.write(jHref + '\t' + jTopicName + '\t' +
+                   authorID + '\t' + authorName + '\t' +
+                   postNo + '\t' + postType + '\t' +
+                   postContent + '\t' + postTime + '\n')
+    postFile.flush()
 
 
 
