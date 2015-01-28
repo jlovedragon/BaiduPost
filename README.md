@@ -12,15 +12,19 @@
 ##### 数据实体
 | 属性 | 说明 | 类型 |
 | --- | :---| ---|
-| author | 作者| string |
-| timestamp| 时间戳，13位数字|string|
-|type|文本类型，1开帖文、2跟帖文、3评论、4回复|string|
-|belongTo|所属帖子ID，10位数字|string|
-|replyTo|回复给谁|string|
-|http| 该帖子对应的HTTP |string|
-|content|帖子内容|string|
-|contentSource|回复的源文本|string|
+| postHttp | 帖子唯一链接 | string |
+| postTitle | 帖子标题 |string|
+| authorID | 作者ID | string|
+| authorName | 作者姓名 | string|
+| postNo | 帖子所在楼层 | string|
+| postType| 帖子类型，1开帖文、2跟帖文、3回复|string|
+| replyTo |回复给谁|string|
+| postContent |帖子内容|string|
+| postTime | 帖子发表时间 | string |
 
+如果是开帖文，replyTo为Null
+跟帖文，replyTo为Null
+所在楼层的回复如果包含回复，则replyTo为回复的人，否则为该楼层作者
 
 ##### 作者信息
 ```
