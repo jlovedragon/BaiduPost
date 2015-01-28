@@ -9,8 +9,8 @@ __author__ = 'quantin'
 2. 数据实体：
     2.1 postHttp    帖子唯一链接(string)
     2.2 postTitle   帖子标题(string)
-    2.3 authorName  作者姓名(string)
-    2.4 authorID    作者ID(string)
+    2.3 authorID    作者ID(string)
+    2.4 authorName  作者姓名(string)
     2.5 postNo      帖子所在楼层(int)
     2.6 postType    帖子类型(string, 1开贴文、2跟帖文、3回复)
     2.7 replyTo     回复给谁(string, 只能拿到name,无法拿到ID)
@@ -90,15 +90,33 @@ def getTextEveryTopic(jTopicName, jHref):
                 jsonData = json.loads(dataField, encoding='utf-8')
                 authorName = jsonData['author']['user_name']
                 authorID = jsonData['author']['user_id']
-                postNo = jsonData['content']['post_no']
+                postNo = int(jsonData['content']['post_no'])
+                type = 1 if postNo == 1 else 2
                 postContent = item.find_all('div', 'p_content')[0].text.strip()
-
                 postTime = item.find_all('span', 'j_reply_data')[0].text
                 print postContent + '\t' + postTime
+
+                store(jHref, jTopicName, authorID, authorName, postNo, type, postContent, postTime)
+                # postContentMain = item.find_all('div', 'd_post_content_main')[0]
+                # print postContentMain + '------'
+
+                # 是否帖子有回复
+                # replyNum = int(jsonData['content']['comment_num'])
+                # for replyItem in item.find_all('div', 'd_post_content_main')[0].find_all('li', 'lzl_single_post'):
+                #     replyAuthor = replyItem.find_all('a', 'at j_user_card')[0].text
+                #     replyContent = replyItem.find_all('span', 'lzl_content_main')[0].text
+                #     print replyAuthor + '\t' + replyContent + '---------'
+                #     # if replyContent.find('回复')
+
 
 
     except:
         print "None"
+
+
+# 存入数据库
+def store(jHref, jTopicName, authorID, authorName, postNo, type, postContent, postTime):
+    pass
 
 
 
