@@ -11,11 +11,12 @@ __author__ = 'quantin'
     2.2 postTitle   帖子标题(string)
     2.3 authorID    作者ID(string)
     2.4 authorName  作者姓名(string)
-    2.5 postNo      帖子所在楼层(int)
-    2.6 postType    帖子类型(string, 1开贴文、2跟帖文、3回复)
-    2.7 replyTo     回复给谁(string, 只能拿到name,无法拿到ID)
-    2.8 postContent 帖子内容
-    2.9 postTime    帖子发表时间
+    2.5 postID      帖子唯一ID
+    2.6 postNo      帖子所在楼层(int)
+    2.7 postType    帖子类型(string, 1开贴文、2跟帖文、3回复)
+    2.8 replyTo     回复给谁(string, 只能拿到name,无法拿到ID)
+    2.9 postContent 帖子内容
+    2.10 postTime    帖子发表时间
 
 '''
 

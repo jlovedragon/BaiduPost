@@ -16,6 +16,7 @@
 | postTitle | 帖子标题 |string|
 | authorID | 作者ID | string|
 | authorName | 作者姓名 | string|
+| postID | 帖子唯一ID | string |
 | postNo | 帖子所在楼层 | string|
 | postType| 帖子类型，1开帖文、2跟帖文、3回复|string|
 | replyTo |回复给谁|string|
