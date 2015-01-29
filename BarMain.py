@@ -66,10 +66,14 @@ def getTextEveryTopic(jTopicName, jHref):
                     authorName = jsonData['author']['user_name']
                     authorID = str(jsonData['author']['user_id']).decode('utf-8')
                     postNo = str(jsonData['content']['post_no']).decode('utf-8')
+                    # 加入postID，测试时可以检测是否抓了重复数据
+                    postID = str(jsonData['content']['post_id']).decode('utf-8')
                     postType = '1' if postNo == '1' else '2'
                     postContent = items[m].find_all('div', 'p_content')[0].text.strip()
 
-                    needWrite = (jHref + '\t' + jTopicName + '\t' + authorID + '\t' + authorName + '\t' + postNo + '\t' + postType.decode('utf-8') + '\t' + postContent + '\t' + postTime + '\n').encode('utf-8')
+                    print postContent + '\t' + postTime
+
+                    needWrite = (jHref + '\t' + jTopicName + '\t' + authorID + '\t' + authorName + '\t' + postID + '\t' + postNo + '\t' + postType.decode('utf-8') + '\t' + postContent + '\t' + postTime + '\n').encode('utf-8')
 
                     store(needWrite)
                 else:
@@ -87,9 +91,8 @@ def getTextEveryTopic(jTopicName, jHref):
     except:
         print "None"
 
-# 主函数
-def main():
-    url = "http://tieba.baidu.com/f?kw=%E4%B8%AD%E5%9B%BD%E7%A7%91%E5%AD%A6%E6%8A%80%E6%9C%AF%E5%A4%A7%E5%AD%A6&ie=utf-8"
+#
+def crawlUrl(url):
     respond = requests.get(url)
     respond.encoding = 'utf-8'
 
@@ -110,18 +113,30 @@ def main():
             # print jTopicName
             jReplyTime = jTopic.find_all('span', 'threadlist_reply_date j_reply_data')[0].text
 
+            print 'JReplyTime: %s' % jReplyTime
+
             # 如果最新回复不是今天的，则丢弃
             if jReplyTime.find('-') != -1:
-                time.sleep(internal * 60)
+                return -1
             else:
                 hour = int(jReplyTime.replace(' ', '')[0:2])
                 # 只抓最近两个小时有更新的帖子
                 currentHour = int(time.strftime("%H",time.localtime()))
-                if hour >= currentHour - internal:
+
+                print 'currentHour: %d -- %d' % (currentHour, hour)
+
+                if hour >= (currentHour - internal):
                     jHref = jTopicAtt['href']
                     getTextEveryTopic(jTopicName, jHref)
 
     postFile.close()
+
+def main():
+    url = "http://tieba.baidu.com/f?kw=%E4%B8%AD%E5%9B%BD%E7%A7%91%E5%AD%A6%E6%8A%80%E6%9C%AF%E5%A4%A7%E5%AD%A6&ie=utf-8";
+    while 1:
+        if crawlUrl(url) == -1:
+            time.sleep(internal * 60 * 60)
+
 
 if __name__ == '__main__':
     main()
